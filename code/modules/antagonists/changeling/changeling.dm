@@ -6,7 +6,7 @@
 	roundend_category = "changelings"
 	antagpanel_category = "Changeling"
 	pref_flag = ROLE_CHANGELING
-	antag_moodlet = /datum/mood_event/focused
+	antag_moodlet = /datum/mood_event/ling
 	antag_hud_name = "changeling"
 	hijack_speed = 0.5
 	ui_name = "AntagInfoChangeling"
@@ -144,6 +144,8 @@
 	RegisterSignal(living_mob, COMSIG_MOB_GET_STATUS_TAB_ITEMS, PROC_REF(get_status_tab_item))
 	RegisterSignals(living_mob, list(COMSIG_MOB_MIDDLECLICKON, COMSIG_MOB_ALTCLICKON), PROC_REF(on_click_sting))
 	ADD_TRAIT(living_mob, TRAIT_FAKE_SOULLESS, CHANGELING_TRAIT)
+	ADD_TRAIT(living_mob, TRAIT_BRAINLESS_CARBON, CHANGELING_TRAIT)
+	ADD_TRAIT(living_mob, TRAIT_CHANGELING_HIVEMIND, CHANGELING_TRAIT)
 
 	if(living_mob.hud_used)
 		var/datum/hud/hud_used = living_mob.hud_used
@@ -203,6 +205,11 @@
 	handle_clown_mutation(living_mob, removing = FALSE)
 	UnregisterSignal(living_mob, list(COMSIG_MOB_LOGIN, COMSIG_LIVING_LIFE, COMSIG_LIVING_POST_FULLY_HEAL, COMSIG_MOB_GET_STATUS_TAB_ITEMS, COMSIG_MOB_MIDDLECLICKON, COMSIG_MOB_ALTCLICKON))
 	REMOVE_TRAIT(living_mob, TRAIT_FAKE_SOULLESS, CHANGELING_TRAIT)
+	REMOVE_TRAIT(living_mob, TRAIT_BRAINLESS_CARBON, CHANGELING_TRAIT)
+	REMOVE_TRAIT(living_mob, TRAIT_CHANGELING_HIVEMIND, CHANGELING_TRAIT)
+
+	for(var/mob/eye/imaginary_friend/hivemind/hivemind_member in living_mob.imaginary_group)
+		qdel(hivemind_member)
 
 	if(living_mob.hud_used)
 		var/datum/hud/hud_used = living_mob.hud_used
@@ -262,7 +269,7 @@
  * Signal proc for [COMSIG_LIVING_LIFE].
  * Handles regenerating chemicals on life ticks.
  */
-/datum/antagonist/changeling/proc/on_life(datum/source, seconds_per_tick, times_fired)
+/datum/antagonist/changeling/proc/on_life(datum/source, seconds_per_tick)
 	SIGNAL_HANDLER
 
 	var/delta_time = DELTA_WORLD_TIME(SSmobs)
